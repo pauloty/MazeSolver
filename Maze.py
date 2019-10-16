@@ -35,7 +35,7 @@ def read_maze(maze_name):
 # Function used to draw the maze
 def setup_maze(maze, pen):
     # Starting point for drawing
-    p = 800 / len(maze)
+    p = 700 / len(maze)
     if len(maze) % 2 == 0:
         start_pos = (len(maze) / 2) * p
     else:
@@ -78,7 +78,7 @@ def print_path(path, pen, maze):
         t.write("Caminho não encontrado", align="center", font=("Arial", 30, "bold"))
     else:
         # Starting point for drawing
-        p = 800 / len(maze)
+        p = 700 / len(maze)
         if len(maze) % 2 == 0:
             start_pos = (len(maze) / 2) * p
         else:
@@ -101,7 +101,7 @@ def main():
     wn = turtle.Screen()
     wn.bgcolor("black")
     wn.title("Maze")
-    wn.setup(900, 900)
+    wn.setup(800, 800)
 
     maze_name = wn.textinput("", "Arquivo de labirinto:")
     path_name = wn.textinput("", "Arquivo de Solução:")
@@ -112,7 +112,7 @@ def main():
         path = f.readline()
     path = literal_eval(path)
 
-    square_size = 800/len(maze)
+    square_size = 700/len(maze)
     pen = Pen(square_size)
     penpath = PenPath(square_size)
     setup_maze(maze, pen)
