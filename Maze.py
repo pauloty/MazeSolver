@@ -1,13 +1,6 @@
 import turtle
 from ast import literal_eval
 
-# Initial params for drawing
-wn = turtle.Screen()
-wn.bgcolor("black")
-wn.title("Maze")
-wn.setup(900, 900)
-
-
 # Pen classes used for drawing. They have different speeds for seeing the drawing of the path
 class Pen(turtle.Turtle):
     def __init__(self, square_size):
@@ -28,9 +21,9 @@ class PenPath(turtle.Turtle):
 
 
 # Function used to read the maze from a file
-def read_maze():
+def read_maze(maze_name):
     maze = list()
-    with open("labirinto29.txt") as f:
+    with open(maze_name + ".txt") as f:
         header = f.readline()
         for line in f:
             maze.append(list(line.rstrip()))
@@ -39,70 +32,9 @@ def read_maze():
     return dimensions, maze
 
 
-# Function used to find the start of the maze
-def find_start(maze):
-    for i in range(len(maze)):
-        for j in range(len(maze[0])):
-            if maze[i][j] == '#':
-                return tuple([i, j])
-    return None
-
-
-# Function used to find the end of the maze
-def find_end(maze):
-    for i in range(len(maze)):
-        for j in range(len(maze[0])):
-            if maze[i][j] == '$':
-                return tuple([i, j])
-    return None
-
-
-# Function used to find the children of a given node
-def get_children(maze, root, visited, dimensions):
-
-    # List of possible movements
-    movements = list()
-    movements.append((root[0]-1, root[1]))    # Up
-    movements.append((root[0]-1, root[1]+1))  # Up/Right
-    movements.append((root[0], root[1]+1))    # Right
-    movements.append((root[0]+1, root[1]+1))  # Down/Right
-    movements.append((root[0]+1, root[1]))    # Down
-    movements.append((root[0]+1, root[1]-1))  # Down/Left
-    movements.append((root[0], root[1]-1))    # Left
-    movements.append((root[0]-1, root[1]-1))  # Up/Left
-
-    # Restrictions to be a valid movement
-    children = list()
-    for i in movements:
-        if 0 <= i[0] < int(dimensions[0]) and 0 <= i[1] < int(dimensions[1]):
-            if maze[i[0]][i[1]] != '-' and i not in visited:
-                children.append(i)
-    return children
-
-
-# Function used to find the path using BFS algorithm
-def bfs(maze, dimensions, start, end):
-    queue = [[start]]
-    visited = set()
-
-    while len(queue) != 0:
-        path = queue.pop(0)
-        current = path[-1]
-        if current == end:
-            return path
-        elif current not in visited:
-            for child in get_children(maze, current, visited, dimensions):
-                # Construction of the path for each children
-                newpath = list(path)
-                newpath.append(child)
-
-                queue.append(newpath)
-            visited.add(current)
-    return None
-
-
 # Function used to draw the maze
 def setup_maze(maze, pen):
+    # Starting point for drawing
     p = 800 / len(maze)
     if len(maze) % 2 == 0:
         start_pos = (len(maze) / 2) * p
@@ -139,30 +71,44 @@ def setup_maze(maze, pen):
 
 # Draws the path found in the maze
 def print_path(path, pen, maze):
-    p = 800 / len(maze)
-    if len(maze) % 2 == 0:
-        start_pos = (len(maze) / 2) * p
+    if not path:
+        t = turtle.Turtle(visible=False)
+        t.penup()
+        t.color("red")
+        t.write("Caminho não encontrado", align="center", font=("Arial", 30, "bold"))
     else:
-        start_pos = ((len(maze) - 1) / 2) * p
+        # Starting point for drawing
+        p = 800 / len(maze)
+        if len(maze) % 2 == 0:
+            start_pos = (len(maze) / 2) * p
+        else:
+            start_pos = ((len(maze) - 1) / 2) * p
 
-    # Skip the start and the end
-    path = path[1:-1]
-    pen.color("yellow")
-    for pos in path:
-        y = pos[0]
-        x = pos[1]
-        screen_x = -start_pos + (x * p)
-        screen_y = start_pos - (y * p)
-        pen.goto(screen_x, screen_y)
-        pen.stamp()
+        # Skip the start and the end
+        path = path[1:-1]
+        pen.color("yellow")
+        for pos in path:
+            y = pos[0]
+            x = pos[1]
+            screen_x = -start_pos + (x * p)
+            screen_y = start_pos - (y * p)
+            pen.goto(screen_x, screen_y)
+            pen.stamp()
 
 
 def main():
-    dimensions, maze = read_maze()
-    start = find_start(maze)
-    end = find_end(maze)
-    #path = bfs(maze, dimensions, start, end)
-    with open("caminho29.txt") as f:
+    # Initial params for drawing
+    wn = turtle.Screen()
+    wn.bgcolor("black")
+    wn.title("Maze")
+    wn.setup(900, 900)
+
+    maze_name = wn.textinput("", "Arquivo de labirinto:")
+    path_name = wn.textinput("", "Arquivo de Solução:")
+    dimensions, maze = read_maze(maze_name)
+
+    # Retrieve the path from the file
+    with open(path_name + ".txt") as f:
         path = f.readline()
     path = literal_eval(path)
 
