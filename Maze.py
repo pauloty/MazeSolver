@@ -1,25 +1,28 @@
 import turtle
+from ast import literal_eval
 
 # Initial params for drawing
 wn = turtle.Screen()
 wn.bgcolor("black")
 wn.title("Maze")
-wn.setup(700, 700)
+wn.setup(900, 900)
 
 
 # Pen classes used for drawing. They have different speeds for seeing the drawing of the path
 class Pen(turtle.Turtle):
-    def __init__(self):
+    def __init__(self, square_size):
         turtle.Turtle.__init__(self)
         self.shape("square")
+        self.shapesize(square_size/24)
         self.penup()
         self.speed(0)
 
 
 class PenPath(turtle.Turtle):
-    def __init__(self):
+    def __init__(self, square_size):
         turtle.Turtle.__init__(self)
         self.shape("square")
+        self.shapesize(square_size / 24)
         self.penup()
         self.speed(1)
 
@@ -27,7 +30,7 @@ class PenPath(turtle.Turtle):
 # Function used to read the maze from a file
 def read_maze():
     maze = list()
-    with open("maze.txt") as f:
+    with open("labirinto29.txt") as f:
         header = f.readline()
         for line in f:
             maze.append(list(line.rstrip()))
@@ -100,11 +103,17 @@ def bfs(maze, dimensions, start, end):
 
 # Function used to draw the maze
 def setup_maze(maze, pen):
+    p = 800 / len(maze)
+    if len(maze) % 2 == 0:
+        start_pos = (len(maze) / 2) * p
+    else:
+        start_pos = ((len(maze) - 1) / 2) * p
+
     for y in range(len(maze)):
         for x in range(len(maze[0])):
             character = maze[y][x]
-            screen_x = -288 + (x * 24)
-            screen_y = 288 - (y * 24)
+            screen_x = -start_pos + (x * p)
+            screen_y = start_pos - (y * p)
 
             # Draws the obstacles
             if character == "-":
@@ -129,15 +138,21 @@ def setup_maze(maze, pen):
 
 
 # Draws the path found in the maze
-def print_path(path, pen):
+def print_path(path, pen, maze):
+    p = 800 / len(maze)
+    if len(maze) % 2 == 0:
+        start_pos = (len(maze) / 2) * p
+    else:
+        start_pos = ((len(maze) - 1) / 2) * p
+
     # Skip the start and the end
     path = path[1:-1]
     pen.color("yellow")
     for pos in path:
         y = pos[0]
         x = pos[1]
-        screen_x = -288 + (x * 24)
-        screen_y = 288 - (y * 24)
+        screen_x = -start_pos + (x * p)
+        screen_y = start_pos - (y * p)
         pen.goto(screen_x, screen_y)
         pen.stamp()
 
@@ -146,12 +161,16 @@ def main():
     dimensions, maze = read_maze()
     start = find_start(maze)
     end = find_end(maze)
-    path = bfs(maze, dimensions, start, end)
+    #path = bfs(maze, dimensions, start, end)
+    with open("caminho29.txt") as f:
+        path = f.readline()
+    path = literal_eval(path)
 
-    pen = Pen()
-    penpath = PenPath()
+    square_size = 800/len(maze)
+    pen = Pen(square_size)
+    penpath = PenPath(square_size)
     setup_maze(maze, pen)
-    print_path(path, penpath)
+    print_path(path, penpath, maze)
 
     wn.tracer(0)
     turtle.mainloop()
