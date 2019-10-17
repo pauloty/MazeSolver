@@ -1,4 +1,5 @@
 import turtle
+import re
 from ast import literal_eval
 
 # Pen classes used for drawing. They have different speeds for seeing the drawing of the path
@@ -21,9 +22,9 @@ class PenPath(turtle.Turtle):
 
 
 # Function used to read the maze from a file
-def read_maze(maze_name):
+def read_maze(maze_num):
     maze = list()
-    with open(maze_name + ".txt") as f:
+    with open("labirintos/labirinto" + str(int(maze_num)) + ".txt") as f:
         header = f.readline()
         for line in f:
             maze.append(list(line.rstrip()))
@@ -35,7 +36,7 @@ def read_maze(maze_name):
 # Function used to draw the maze
 def setup_maze(maze, pen):
     # Starting point for drawing
-    p = 700 / len(maze)
+    p = 650 / len(maze)
     if len(maze) % 2 == 0:
         start_pos = (len(maze) / 2) * p
     else:
@@ -70,7 +71,8 @@ def setup_maze(maze, pen):
 
 
 # Draws the path found in the maze
-def print_path(path, pen, maze):
+def print_path(path, pen, maze):   
+    turtle.delay(9)
     if not path:
         t = turtle.Turtle(visible=False)
         t.penup()
@@ -78,7 +80,7 @@ def print_path(path, pen, maze):
         t.write("Caminho não encontrado", align="center", font=("Arial", 30, "bold"))
     else:
         # Starting point for drawing
-        p = 700 / len(maze)
+        p = 650 / len(maze)
         if len(maze) % 2 == 0:
             start_pos = (len(maze) / 2) * p
         else:
@@ -95,24 +97,29 @@ def print_path(path, pen, maze):
             pen.goto(screen_x, screen_y)
             pen.stamp()
 
-
 def main():
     # Initial params for drawing
+    turtle.resizemode("auto")
+    turtle.delay(0)
     wn = turtle.Screen()
     wn.bgcolor("black")
     wn.title("Maze")
     wn.setup(800, 800)
+    regex = re.compile(r'\d+')
 
-    maze_name = wn.textinput("", "Arquivo de labirinto:")
-    path_name = wn.textinput("", "Arquivo de Solução:")
-    dimensions, maze = read_maze(maze_name)
+    # maze_name = wn.textinput("", "Arquivo de labirinto:")
+    maze_num = wn.numinput("", "Numero de labirinto:")
+    alg_name = wn.textinput("", "Algoritmo: \nbusca_largura, busca_profundidade,\nbusca_best_first ou busca_Aestrela")
+    # path_name = wn.textinput("", "Arquivo de Solução:")
+    path_name = alg_name + "/caminho" + str(int(maze_num))
+    dimensions, maze = read_maze(maze_num)
 
     # Retrieve the path from the file
-    with open(path_name + ".txt") as f:
+    with open("caminhos/" + path_name + ".txt") as f:
         path = f.readline()
     path = literal_eval(path)
 
-    square_size = 700/len(maze)
+    square_size = 650/len(maze)
     pen = Pen(square_size)
     penpath = PenPath(square_size)
     setup_maze(maze, pen)
@@ -120,7 +127,6 @@ def main():
 
     wn.tracer(0)
     turtle.mainloop()
-
 
 if __name__ == '__main__':
     main()
